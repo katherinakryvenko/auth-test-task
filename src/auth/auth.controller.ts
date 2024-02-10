@@ -11,8 +11,11 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { GenericResponseDto } from 'src/common/dtos/generic-response.dto';
 import { LocalAuthGuard } from './guards/local.guard';
 import { JwtAuthGuard } from './guards/jwt.guard';
+import { RefreshJwtGuard } from './guards/refresh-jwt.guard';
 import { User } from 'src/common/decorators/user.decorator';
 import { SimpleUserDto } from './dtos/simple-user.dto';
+import { SignInResponseDto } from './dtos/sign-in-response.dto';
+import { RefreshTokenRequestDto } from './dtos/refresh-token-request.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -27,8 +30,16 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('sign-in')
-  async signIn(@User() user: SimpleUserDto) {
+  async signIn(@User() user: SimpleUserDto): Promise<SignInResponseDto> {
     return this.authService.signIn(user);
+  }
+
+  @UseGuards(RefreshJwtGuard)
+  @Post('refresh')
+  async refreshToken(
+    @Body() body: RefreshTokenRequestDto,
+  ): Promise<SignInResponseDto> {
+    return this.authService.refreshToken(body.refreshToken);
   }
 
   @UseGuards(JwtAuthGuard)

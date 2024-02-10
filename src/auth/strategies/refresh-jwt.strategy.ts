@@ -5,10 +5,13 @@ import { ConfigService } from '@nestjs/config';
 import { JwtPayloadDto } from '../dtos/jwt-payload.dto';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class RefreshJwtStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
   constructor(readonly configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromBodyField('refreshToken'),
       ignoreExpiration: false,
       secretOrKey: configService.get('JWT_SIGNING_SECRET'),
     });

@@ -95,7 +95,7 @@ export class AuthService {
     return { userId: user.id, username: username };
   }
 
-  async refreshAccessToken(refreshToken: string): Promise<SignInResponseDto> {
+  async refreshToken(refreshToken: string): Promise<SignInResponseDto> {
     const refreshTokenEntity = await this.refreshTokenRepository.findOne({
       where: { token: refreshToken },
       relations: ['user'],
