@@ -128,6 +128,7 @@ export class AuthService {
     });
     refreshToken.userId = payload.sub;
     refreshToken.expiryDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    refreshToken.issuedAt = new Date();
 
     return this.refreshTokenRepository.save(refreshToken);
   }

@@ -17,7 +17,7 @@ export class CreateRefreshTokensTable1707594242030
           },
           {
             name: 'token',
-            type: 'uuid',
+            type: 'varchar',
             isUnique: true,
           },
           {
