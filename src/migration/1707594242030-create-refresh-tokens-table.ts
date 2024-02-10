@@ -21,8 +21,12 @@ export class CreateRefreshTokensTable1707594242030
             isUnique: true,
           },
           {
-            name: 'expiresIn',
-            type: 'bigint',
+            name: 'expiryDate',
+            type: 'timestamp',
+          },
+          {
+            name: 'issuedAt',
+            type: 'timestamp',
           },
           {
             name: 'userId',

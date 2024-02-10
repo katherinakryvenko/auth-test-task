@@ -12,12 +12,19 @@ import { UserNotFoundException } from 'src/common/exceptions/user-not-found.exce
 import { SimpleUserDto } from './dtos/simple-user.dto';
 import { SignInResponseDto } from './dtos/sign-in-response.dto';
 import { ConfigService } from '@nestjs/config';
+import { RefreshTokenEntity } from 'src/entities/refresh-token.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { JwtPayloadDto } from './dtos/jwt-payload.dto';
+
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private jwtService: JwtService,
     private config: ConfigService,
+    @InjectRepository(RefreshTokenEntity)
+    private refreshTokenRepository: Repository<RefreshTokenEntity>,
   ) {}
 
   async signUp(user: CreateUserDto): Promise<GenericResponseDto> {
@@ -37,17 +44,31 @@ export class AuthService {
 
   async signIn(user: SimpleUserDto): Promise<SignInResponseDto> {
     const tokenTTL = this.config.get<number>('JWT_TOKEN_TTL_MINUTES');
-    const expiresIn = ''.concat(tokenTTL.toString()).concat('m');
 
-    const payload = { sub: user.userId, username: user.username };
-    const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn,
-    });
+    const payload = {
+      sub: user.userId,
+      username: user.username,
+    } as JwtPayloadDto;
 
+    const refreshTokenEntity = await this.issueRefreshToken(payload);
+
+    const accessToken = await this.issueAccessToken(payload, tokenTTL);
     return {
       accessToken: accessToken,
       expirationTime: this.getExpirationTimeInMs(tokenTTL),
+      refreshToken: refreshTokenEntity.token,
     };
+  }
+
+  private async issueAccessToken(
+    payload: JwtPayloadDto,
+    tokenTTL: number,
+  ): Promise<string> {
+    const expiresIn = ''.concat(tokenTTL.toString()).concat('m');
+
+    return await this.jwtService.signAsync(payload, {
+      expiresIn,
+    });
   }
 
   private getExpirationTimeInMs(ttlMinutes: number): number {
@@ -72,5 +93,42 @@ export class AuthService {
       throw new UnauthorizedException('Password is incorrect');
 
     return { userId: user.id, username: username };
+  }
+
+  async refreshAccessToken(refreshToken: string): Promise<SignInResponseDto> {
+    const refreshTokenEntity = await this.refreshTokenRepository.findOne({
+      where: { token: refreshToken },
+      relations: ['user'],
+    });
+
+    if (!refreshTokenEntity || refreshTokenEntity.expiryDate < new Date()) {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+
+    const payload = {
+      sub: refreshTokenEntity.user.id,
+      username: refreshTokenEntity.user.username,
+    } as JwtPayloadDto;
+    const tokenTTL = this.config.get<number>('JWT_TOKEN_TTL_MINUTES');
+    const newAccessToken = await this.issueAccessToken(payload, tokenTTL);
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: refreshToken,
+      expirationTime: this.getExpirationTimeInMs(tokenTTL),
+    };
+  }
+
+  private async issueRefreshToken(
+    payload: JwtPayloadDto,
+  ): Promise<RefreshTokenEntity> {
+    const refreshToken = new RefreshTokenEntity();
+    refreshToken.token = await this.jwtService.signAsync(payload, {
+      expiresIn: '1d',
+    });
+    refreshToken.userId = payload.sub;
+    refreshToken.expiryDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    return this.refreshTokenRepository.save(refreshToken);
   }
 }

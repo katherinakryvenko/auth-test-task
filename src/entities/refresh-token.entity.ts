@@ -1,16 +1,22 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { UserEntity } from './user.entity';
 
-@Entity()
-export class RefreshToken {
+@Entity('refresh_tokens')
+export class RefreshTokenEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ type: 'uuid', unique: true })
   token: string;
 
-  @Column('bigint')
-  expiresIn: number;
+  @Column('timestamp')
+  expiryDate: Date;
+
+  @Column('timestamp')
+  issuedAt: Date;
+
+  @Column()
+  userId: number;
 
   @ManyToOne(() => UserEntity, (user) => user.id)
   user: UserEntity;
