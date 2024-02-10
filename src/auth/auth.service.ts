@@ -16,7 +16,7 @@ export class AuthService {
       await this.userService.create(email, hashedPassword);
       return { success: true, message: 'Successfully signed up!' };
     } catch (error) {
-      console.error('Error during sign-pp', error);
+      console.error('Error during sign-up', error);
       throw error instanceof BadRequestException
         ? error
         : new BadRequestException('Failed to sign up.');
