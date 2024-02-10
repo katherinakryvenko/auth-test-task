@@ -60,6 +60,11 @@ export class AuthService {
     };
   }
 
+  async signOut(userId: number): Promise<GenericResponseDto> {
+    await this.refreshTokenRepository.delete({ userId });
+    return { success: true, message: "You've been signed out successfully." };
+  }
+
   private async issueAccessToken(
     payload: JwtPayloadDto,
     tokenTTL: number,

@@ -34,6 +34,12 @@ export class AuthController {
     return this.authService.signIn(user);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('sign-out')
+  async signOut(@User() user: SimpleUserDto): Promise<GenericResponseDto> {
+    return this.authService.signOut(user.userId);
+  }
+
   @UseGuards(RefreshJwtGuard)
   @Post('refresh')
   async refreshToken(
