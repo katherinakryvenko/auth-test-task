@@ -11,11 +11,13 @@ import { GenericResponseDto } from 'src/common/dtos/generic-response.dto';
 import { UserNotFoundException } from 'src/common/exceptions/user-not-found.exception';
 import { SimpleUserDto } from './dtos/simple-user.dto';
 import { SignInResponseDto } from './dtos/sign-in-response.dto';
+import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private jwtService: JwtService,
+    private config: ConfigService,
   ) {}
 
   async signUp(user: CreateUserDto): Promise<GenericResponseDto> {
@@ -34,14 +36,25 @@ export class AuthService {
   }
 
   async signIn(user: SimpleUserDto): Promise<SignInResponseDto> {
+    const tokenTTL = this.config.get<number>('JWT_TOKEN_TTL_MINUTES');
+    const expiresIn = ''.concat(tokenTTL.toString()).concat('m');
+
     const payload = { sub: user.userId, username: user.username };
     const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '1h',
+      expiresIn,
     });
 
     return {
       accessToken: accessToken,
+      expirationTime: this.getExpirationTimeInMs(tokenTTL),
     };
+  }
+
+  private getExpirationTimeInMs(ttlMinutes: number): number {
+    const currentTime = new Date().getTime();
+    const expirationDuration = ttlMinutes * 60 * 1000; // 1 minute in milliseconds
+    const expirationTime = new Date(currentTime + expirationDuration).getTime();
+    return expirationTime;
   }
 
   async validateUser(
