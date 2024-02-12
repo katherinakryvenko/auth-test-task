@@ -43,7 +43,9 @@ export class AuthService {
   }
 
   async signIn(user: SimpleUserDto): Promise<SignInResponseDto> {
-    const tokenTTL = this.config.get<number>('JWT_TOKEN_TTL_MINUTES');
+    const accessTokenTTL = this.config.get<number>(
+      'JWT_ACCESS_TOKEN_TTL_MINUTES',
+    );
 
     const payload = {
       sub: user.userId,
@@ -52,10 +54,10 @@ export class AuthService {
 
     const refreshTokenEntity = await this.issueRefreshToken(payload);
 
-    const accessToken = await this.issueAccessToken(payload, tokenTTL);
+    const accessToken = await this.issueAccessToken(payload, accessTokenTTL);
     return {
       accessToken: accessToken,
-      expirationTime: this.getExpirationTimeInMs(tokenTTL),
+      expirationTime: this.getExpirationTimeInMs(accessTokenTTL),
       refreshToken: refreshTokenEntity.token,
     };
   }
@@ -127,9 +129,14 @@ export class AuthService {
   private async issueRefreshToken(
     payload: JwtPayloadDto,
   ): Promise<RefreshTokenEntity> {
+    const refreshTokenTTL = this.config.get<number>(
+      'JWT_REFRESH_TOKEN_TTL_HOURS',
+    );
+    const expiresIn = ''.concat(refreshTokenTTL.toString()).concat('h');
+
     const refreshToken = new RefreshTokenEntity();
     refreshToken.token = await this.jwtService.signAsync(payload, {
-      expiresIn: '1d',
+      expiresIn,
     });
     refreshToken.userId = payload.sub;
     refreshToken.expiryDate = new Date(Date.now() + 24 * 60 * 60 * 1000);

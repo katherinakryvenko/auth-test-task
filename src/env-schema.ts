@@ -6,8 +6,10 @@ export default Joi.object({
     .default('development'),
   PORT: Joi.number().integer().default(3001),
 
-  JWT_SIGNING_SECRET: Joi.string().required(),
-  JWT_TOKEN_TTL_MINUTES: Joi.number().default(30),
+  JWT_ACCESS_SIGNING_SECRET: Joi.string().required(),
+  JWT_REFRESH_SIGNING_SECRET: Joi.string().required(),
+  JWT_ACCESS_TOKEN_TTL_MINUTES: Joi.number().default(15),
+  JWT_REFRESH_TOKEN_TTL_HOURS: Joi.number().default(24),
 
   POSTGRES_HOST: Joi.string().required(),
   POSTGRES_PORT: Joi.number().integer().default(5432),
