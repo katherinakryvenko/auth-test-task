@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from 'src/entities/user.entity';
+import { UserProfileDto } from './dtos/user-profile.dto';
 
 @Injectable()
 export class UserService {
@@ -23,5 +24,12 @@ export class UserService {
   async findByUsername(username: string): Promise<UserEntity> {
     const user = await this.userRepository.findOne({ where: { username } });
     return user;
+  }
+
+  async getUserProfile(username: string): Promise<UserProfileDto> {
+    const userEntity = await this.findByUsername(username);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userProfile } = userEntity;
+    return userProfile;
   }
 }
