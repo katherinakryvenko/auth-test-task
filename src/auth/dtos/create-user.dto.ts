@@ -22,7 +22,8 @@ export class CreateUserDto {
   @MinLength(8)
   @MaxLength(32)
   @Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/, {
-    message: 'password too weak',
+    message:
+      'Password should be at least 8 characters, including at least one letter and one number. No special characters',
   })
   readonly password: string;
 }

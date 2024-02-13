@@ -49,6 +49,9 @@ The application is now running and accessible at `http://localhost:3001`
 
 ## Test the api routes
 
+Below there's a short description of the routes available in the API.
+For more information on how to use them, please see the Swagger documentation accessible at `http://localhost:3001/api#/`
+
 - POST /api/auth/sign-up: Register a new user.
 - POST /api/auth/sign-in: Log in a user.
 - POST /api/auth/sign-out: Log out a user.

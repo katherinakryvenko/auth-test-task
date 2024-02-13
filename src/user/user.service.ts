@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from 'src/entities/user.entity';
 import { UserProfileDto } from './dtos/user-profile.dto';
+import { UserNotFoundException } from 'src/common/exceptions/user-not-found.exception';
 
 @Injectable()
 export class UserService {
@@ -28,6 +29,7 @@ export class UserService {
 
   async getUserProfile(username: string): Promise<UserProfileDto> {
     const userEntity = await this.findByUsername(username);
+    if (!userEntity) throw new UserNotFoundException();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userProfile } = userEntity;
     return userProfile;
