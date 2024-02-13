@@ -7,6 +7,7 @@ import envSchema from './env-schema';
 import { getTypeOrmConfig } from './typeorm.config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { MigrationManagerService } from './migration-manager/migration-manager.service';
 
 @Module({
   imports: [
@@ -20,6 +21,6 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, MigrationManagerService],
 })
 export class AppModule {}

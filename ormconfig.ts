@@ -21,5 +21,5 @@ export const connectionSource = new DataSource({
 
   migrationsTableName: 'migration',
 
-  migrations: ['src/migration/*.ts'],
+  migrations: ['src/migration/*.ts', 'src/migration/*.js'],
 });

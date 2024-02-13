@@ -21,6 +21,9 @@ export function getTypeOrmConfig(config: ConfigService): TypeOrmModuleOptions {
 
     migrationsTableName: 'migration',
 
-    migrations: [join(__dirname, '**', '/migration/*.ts')],
+    migrations: [
+      join(__dirname, '**', '/migration/*.ts'),
+      join(__dirname, '**', '/migration/*.js'),
+    ],
   };
 }
