@@ -1,4 +1,5 @@
 import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { GenericResponseDto } from 'src/common/dtos/generic-response.dto';
@@ -10,10 +11,13 @@ import { SimpleUserDto } from './dtos/simple-user.dto';
 import { SignInResponseDto } from './dtos/sign-in-response.dto';
 import { RefreshTokenRequestDto } from './dtos/refresh-token-request.dto';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({ type: GenericResponseDto })
   @Post('sign-up')
   async signUp(
     @Body() createUserDto: CreateUserDto,
@@ -27,12 +31,15 @@ export class AuthController {
     return this.authService.signIn(user);
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('sign-out')
   async signOut(@User() user: SimpleUserDto): Promise<GenericResponseDto> {
     return this.authService.signOut(user.userId);
   }
 
+  @ApiBody({ type: RefreshTokenRequestDto })
+  @ApiResponse({ type: SignInResponseDto })
   @UseGuards(RefreshJwtGuard)
   @Post('refresh')
   async refreshToken(
