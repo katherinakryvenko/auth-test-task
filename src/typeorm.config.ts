@@ -11,12 +11,7 @@ export function getTypeOrmConfig(config: ConfigService): TypeOrmModuleOptions {
     username: config.get('POSTGRES_USER'),
     password: config.get('POSTGRES_PASSWORD'),
     database: config.get('POSTGRES_DATABASE'),
-    ssl: true,
-    extra: {
-      ssl: {
-        rejectUnauthorized: false,
-      },
-    },
+    ssl: false,
     entities: [join(__dirname, '**', '*.entity{.ts,.js}')],
 
     migrationsTableName: 'migration',
