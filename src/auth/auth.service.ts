@@ -115,7 +115,7 @@ export class AuthService {
       sub: refreshTokenEntity.user.id,
       username: refreshTokenEntity.user.username,
     } as JwtPayloadDto;
-    const tokenTTL = this.config.get<number>('JWT_TOKEN_TTL_MINUTES');
+    const tokenTTL = this.config.get<number>('JWT_ACCESS_TOKEN_TTL_MINUTES');
     const newAccessToken = await this.issueAccessToken(payload, tokenTTL);
 
     return {
