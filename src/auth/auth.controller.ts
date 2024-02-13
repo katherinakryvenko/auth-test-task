@@ -10,6 +10,7 @@ import { User } from 'src/common/decorators/user.decorator';
 import { SimpleUserDto } from './dtos/simple-user.dto';
 import { SignInResponseDto } from './dtos/sign-in-response.dto';
 import { RefreshTokenRequestDto } from './dtos/refresh-token-request.dto';
+import { SignInDto } from './dtos/sign-in.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -25,6 +26,8 @@ export class AuthController {
     return this.authService.signUp(createUserDto);
   }
 
+  @ApiBody({ type: SignInDto })
+  @ApiResponse({ type: SignInResponseDto })
   @UseGuards(LocalAuthGuard)
   @Post('sign-in')
   async signIn(@User() user: SimpleUserDto): Promise<SignInResponseDto> {
@@ -32,6 +35,7 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
+  @ApiResponse({ type: GenericResponseDto })
   @UseGuards(JwtAuthGuard)
   @Post('sign-out')
   async signOut(@User() user: SimpleUserDto): Promise<GenericResponseDto> {
